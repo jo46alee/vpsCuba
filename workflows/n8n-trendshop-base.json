@@ -1,0 +1,368 @@
+{
+  "name": "TrendShopX2025 Catalog Sync",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      },
+      "id": "1",
+      "name": "Schedule Trigger - Cada 30m",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://trendshopx2025.biznecubano.com/",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "string"
+            }
+          }
+        }
+      },
+      "id": "2",
+      "name": "HTTP Request - Home HTML",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        420,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const html = $json.body || $json.data || '';\nconst base = 'https://trendshopx2025.biznecubano.com';\nconst re = /href=[\"']([^\"']*\\/p\\/[a-zA-Z0-9_-]+)[\"']/g;\nconst urls = new Set();\nlet m;\nwhile ((m = re.exec(html)) !== null) {\n  const href = m[1];\n  const abs = href.startsWith('http') ? href : base + href;\n  urls.add(abs.split('?')[0]);\n}\nreturn [...urls].map(url => ({ json: { url } }));"
+      },
+      "id": "3",
+      "name": "Code - Extract Product URLs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "batchSize": 10
+      },
+      "id": "4",
+      "name": "Split In Batches - Productos",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        900,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "string"
+            }
+          }
+        }
+      },
+      "id": "5",
+      "name": "HTTP Request - Producto HTML",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1140,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const html = $json.body || '';\nconst url = $json.url || '';\nconst pick = (re) => (html.match(re) || [])[1] || null;\nconst strip = (s='') => s.replace(/<[^>]+>/g, ' ').replace(/\\s+/g,' ').trim();\nconst name = strip(pick(/<h1[^>]*>([\\s\\S]*?)<\\/h1>/i) || '');\nconst img = pick(/<img[^>]+src=[\"']([^\"']+)[\"'][^>]*>/i);\nconst stockRaw = strip((html.match(/(\\d+\\s+disponibles|Solo quedan\\s+\\d+|Disponible)/i)||[])[1] || '');\nconst priceRaw = strip((html.match(/((?:CUP|USD|\\$)\\s?[0-9.,]+)/i)||[])[1] || '');\nconst needs_dynamic = !priceRaw;\nreturn [{ json: { url, name, image: img, stock_raw: stockRaw, price_raw: priceRaw, needs_dynamic } }];"
+      },
+      "id": "6",
+      "name": "Code - Parse HTML Fields",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1380,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.needs_dynamic }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "7",
+      "name": "IF - Precio dinámico",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1620,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://YOUR-HEADLESS-SERVICE/extract-price",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"url\": $json.url }"
+      },
+      "id": "8",
+      "name": "HTTP Request - Headless Fallback",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1860,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine"
+      },
+      "id": "9",
+      "name": "Merge - Enriquecer precio",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const crypto = require('crypto');\nfunction clean(v=''){return v.replace(/\\s+/g,' ').trim();}\nfunction parsePrice(raw=''){\n const txt = clean(raw).toUpperCase();\n const currency = txt.includes('USD') || txt.includes('$') ? 'USD' : (txt.includes('CUP') ? 'CUP' : 'CUP');\n const n = txt.replace(/[^\\d.,]/g,'').replace(/\\.(?=\\d{3}(\\D|$))/g,'').replace(',', '.');\n const price = Number(n);\n return { price: Number.isFinite(price)?price:null, currency };\n}\nfunction parseStock(raw=''){\n const t = clean(raw).toLowerCase();\n if (t.includes('solo quedan')) return Number((t.match(/(\\d+)/)||[])[1]||0);\n if (t.includes('disponible')) return 999;\n return Number((t.match(/(\\d+)/)||[])[1]||0);\n}\nconst p = $json;\nconst pp = parsePrice(p.price_raw || p.price || '');\nconst stock = parseStock(p.stock_raw || '');\nconst payload = {\n  external_id: (p.url || '').split('/').pop(),\n  sku: '',\n  name: clean(p.name || ''),\n  price: pp.price,\n  currency: pp.currency,\n  stock,\n  availability: stock > 0 ? 'in_stock' : 'out_of_stock',\n  category: p.category || 'Sin categoría',\n  image: p.image || '',\n  url: p.url,\n  source: 'trendshopx2025.biznecubano.com',\n  is_active: true,\n  updated_at: new Date().toISOString(),\n};\npayload.hash_payload = crypto.createHash('sha1').update(JSON.stringify({\n  name: payload.name, price: payload.price, currency: payload.currency, stock: payload.stock, image: payload.image, category: payload.category\n})).digest('hex');\nreturn [{json: payload}];"
+      },
+      "id": "10",
+      "name": "Code - Normalize Product",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2340,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.price }}",
+              "operation": "notEmpty"
+            }
+          ],
+          "string": [
+            {
+              "value1": "={{ $json.name }}",
+              "operation": "notEmpty"
+            }
+          ]
+        }
+      },
+      "id": "11",
+      "name": "IF - Valid Product",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2580,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "upsert",
+        "tableId": "products",
+        "columns": "external_id,name,price,currency,stock,availability,category,image,url,source,is_active,updated_at,hash_payload"
+      },
+      "id": "12",
+      "name": "Supabase - Upsert Product",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2820,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://YOUR-FRONTEND/revalidate?secret=YOUR_SECRET",
+        "options": {}
+      },
+      "id": "13",
+      "name": "HTTP Request - Revalidate Frontend",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3060,
+        220
+      ]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger - Cada 30m": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Home HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Home HTML": {
+      "main": [
+        [
+          {
+            "node": "Code - Extract Product URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Extract Product URLs": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches - Productos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split In Batches - Productos": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Producto HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Producto HTML": {
+      "main": [
+        [
+          {
+            "node": "Code - Parse HTML Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Parse HTML Fields": {
+      "main": [
+        [
+          {
+            "node": "IF - Precio dinámico",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Precio dinámico": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Headless Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge - Enriquecer precio",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Headless Fallback": {
+      "main": [
+        [
+          {
+            "node": "Merge - Enriquecer precio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge - Enriquecer precio": {
+      "main": [
+        [
+          {
+            "node": "Code - Normalize Product",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Normalize Product": {
+      "main": [
+        [
+          {
+            "node": "IF - Valid Product",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Valid Product": {
+      "main": [
+        [
+          {
+            "node": "Supabase - Upsert Product",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Supabase - Upsert Product": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Revalidate Frontend",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "sku": "TSX-0PZB0",
+    "external_id": "0pzb0",
+    "name": "Deezer 1 mes 1 dispositivo",
+    "slug": "deezer-1-mes-1-dispositivo",
+    "description": "Suscripción digital mensual.",
+    "price": 350,
+    "currency": "CUP",
+    "stock": 999,
+    "availability": "in_stock",
+    "category": "Entretenimiento & Streaming",
+    "image": "https://trendshopx2025.biznecubano.com/images/products/0pzb0.jpg",
+    "url": "https://trendshopx2025.biznecubano.com/p/0pzb0",
+    "source": "trendshopx2025.biznecubano.com",
+    "hash_payload": "4d1af2f4debb02877f812f53a35ca71302ff3a9a",
+    "is_active": true,
+    "updated_at": "2026-04-22T12:00:00.000Z"
+  },
+  {
+    "sku": "TSX-UMGWY",
+    "external_id": "umgwy",
+    "name": "⚡ TK-700 E-FAST – Tu aliado en los apagones",
+    "slug": "tk-700-e-fast-tu-aliado-en-los-apagones",
+    "description": "Producto físico de respaldo eléctrico.",
+    "price": 19500,
+    "currency": "CUP",
+    "stock": 10,
+    "availability": "in_stock",
+    "category": "Utilez del Hogar",
+    "image": "https://trendshopx2025.biznecubano.com/images/products/umgwy.jpg",
+    "url": "https://trendshopx2025.biznecubano.com/p/umgwy",
+    "source": "trendshopx2025.biznecubano.com",
+    "hash_payload": "f8f44eb4f9875bf8d4f210925dd4bd6a45bf153c",
+    "is_active": true,
+    "updated_at": "2026-04-22T12:00:00.000Z"
+  }
+]

@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TrendShopX2025 | Vitrina Digital</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#f6f8fc;
+      --card:#ffffff;
+      --text:#101827;
+      --muted:#667085;
+      --primary:#4f46e5;
+      --primary-2:#7c3aed;
+      --ok:#059669;
+      --ring:rgba(79,70,229,.2);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui;background:linear-gradient(180deg,#eef2ff 0%,var(--bg) 25%);color:var(--text)}
+    .container{width:min(1120px,92%);margin:0 auto}
+    header{position:sticky;top:0;backdrop-filter: blur(8px);background:rgba(246,248,252,.75);border-bottom:1px solid #e5e7eb;z-index:20}
+    .nav{display:flex;justify-content:space-between;align-items:center;padding:14px 0}
+    .logo{font-weight:800;letter-spacing:.2px}
+    .logo span{color:var(--primary)}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border-radius:12px;border:0;text-decoration:none;font-weight:700;transition:.2s}
+    .btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;box-shadow:0 10px 28px var(--ring)}
+    .hero{padding:62px 0 30px}
+    .hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:24px;align-items:center}
+    .hero h1{font-size:clamp(1.8rem,4vw,3rem);line-height:1.1;margin:0 0 12px}
+    .hero p{color:var(--muted);font-size:1.05rem;margin:0 0 22px}
+    .hero-card{background:var(--card);border:1px solid #e5e7eb;border-radius:20px;padding:20px;box-shadow:0 12px 32px rgba(16,24,39,.06)}
+    .badges{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0 8px}
+    .badge{font-size:.84rem;padding:7px 10px;background:#eef2ff;color:#3730a3;border-radius:999px;font-weight:600}
+    section{padding:26px 0}
+    h2{font-size:1.35rem;margin:0 0 12px}
+    .category-row{display:flex;gap:10px;overflow:auto;padding-bottom:4px}
+    .chip{white-space:nowrap;background:#fff;border:1px solid #e5e7eb;border-radius:999px;padding:8px 12px;color:#334155;font-weight:600}
+    .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+    .card{background:var(--card);border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 8px 20px rgba(16,24,39,.05)}
+    .img-wrap{position:relative;aspect-ratio:1/1;background:#f8fafc}
+    .img-wrap img{width:100%;height:100%;object-fit:cover}
+    .stock{position:absolute;left:10px;top:10px;background:rgba(5,150,105,.95);color:#fff;font-size:.72rem;padding:6px 8px;border-radius:999px;font-weight:700}
+    .content{padding:12px}
+    .name{font-weight:700;font-size:.95rem;line-height:1.3;min-height:2.5em}
+    .price{margin:8px 0 10px;font-size:1.15rem;font-weight:800;color:#111827}
+    .meta{font-size:.8rem;color:var(--muted);margin-bottom:10px}
+    .btn-buy{width:100%;background:#111827;color:#fff;border-radius:10px;padding:10px 12px;font-weight:700;text-decoration:none;text-align:center}
+    footer{margin-top:28px;padding:24px 0 34px;color:#64748b;border-top:1px solid #e5e7eb}
+    @media (max-width:980px){
+      .hero-grid{grid-template-columns:1fr}
+      .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+    @media (max-width:560px){
+      .grid{grid-template-columns:1fr}
+      .btn{width:100%}
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="container nav">
+    <div class="logo">TrendShop<span>X2025</span></div>
+    <a class="btn btn-primary" href="#productos">Ver productos</a>
+  </div>
+</header>
+
+<main class="container">
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <h1>Tu vitrina digital moderna para vender más, sin fricción.</h1>
+        <p>Catálogo sincronizado automáticamente desde tu tienda, con diseño premium, rápido y optimizado para móvil.</p>
+        <a class="btn btn-primary" href="#productos">Comprar ahora</a>
+        <div class="badges">
+          <span class="badge">⚡ Entrega rápida</span>
+          <span class="badge">🔒 Pago seguro</span>
+          <span class="badge">💬 Soporte diario</span>
+        </div>
+      </div>
+      <div class="hero-card">
+        <h3 style="margin:0 0 8px">Categorías destacadas</h3>
+        <p style="margin:0;color:#64748b">Streaming, GiftCards, Software, IA, Etecsa y más.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Categorías</h2>
+    <div class="category-row">
+      <span class="chip">Entretenimiento & Streaming</span>
+      <span class="chip">GiftCards</span>
+      <span class="chip">Licencias & Software</span>
+      <span class="chip">Suscripción IA</span>
+      <span class="chip">Servicios Etecsa</span>
+    </div>
+  </section>
+
+  <section id="productos">
+    <h2>Productos recomendados</h2>
+    <div class="grid" id="product-grid"></div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">© 2026 TrendShopX2025 · Catálogo sincronizado con n8n.</div>
+</footer>
+
+<script>
+const products = [
+  {
+    name: 'Deezer 1 mes 1 dispositivo',
+    price: 350,
+    currency: 'CUP',
+    stock: 999,
+    category: 'Entretenimiento & Streaming',
+    image: 'https://trendshopx2025.biznecubano.com/p/0pzb0',
+    url: 'https://trendshopx2025.biznecubano.com/p/0pzb0'
+  },
+  {
+    name: '⚡ TK-700 E-FAST – Tu aliado en los apagones',
+    price: 19500,
+    currency: 'CUP',
+    stock: 10,
+    category: 'Utilez del Hogar',
+    image: 'https://images.unsplash.com/photo-1580894908361-967195033215?auto=format&fit=crop&w=800&q=60',
+    url: 'https://trendshopx2025.biznecubano.com/p/umgwy'
+  }
+];
+
+const formatPrice = (v,c='CUP') => new Intl.NumberFormat('es-CU', { style:'currency', currency:c, maximumFractionDigits:0 }).format(v);
+const grid = document.getElementById('product-grid');
+
+grid.innerHTML = products.map(p => `
+  <article class="card">
+    <div class="img-wrap">
+      <img src="${p.image}" alt="${p.name}">
+      <span class="stock">${p.stock > 0 ? 'Disponible' : 'Agotado'}</span>
+    </div>
+    <div class="content">
+      <div class="name">${p.name}</div>
+      <div class="price">${formatPrice(p.price,p.currency)}</div>
+      <div class="meta">${p.category}</div>
+      <a class="btn-buy" href="${p.url}" target="_blank" rel="noopener">Comprar ahora</a>
+    </div>
+  </article>
+`).join('');
+</script>
+</body>
+</html>
